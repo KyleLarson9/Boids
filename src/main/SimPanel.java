@@ -20,7 +20,7 @@ public class SimPanel extends JPanel {
 		this.setBackground(Color.DARK_GRAY);
 	}
 	
-	public void painComponent(Graphics g) {
+	public void paintComponent(Graphics g) {
 		super.paintComponent(g);
 		Graphics2D g2d = (Graphics2D) g;
 		sim.render(g2d);

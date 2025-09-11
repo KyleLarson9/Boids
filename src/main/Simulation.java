@@ -2,6 +2,8 @@ package main;
 
 import java.awt.Graphics2D;
 
+import objects.Boid;
+
 public class Simulation implements Runnable {
 
 	private SimFrame frame;
@@ -20,6 +22,8 @@ public class Simulation implements Runnable {
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
+	private Boid boid;
+	
 	public Simulation() {
 		initializeClasses();
 		
@@ -32,15 +36,15 @@ public class Simulation implements Runnable {
 	}
 	
 	public void update() {
-		
+		boid.update();
 	}
 	
 	public void render(Graphics2D g2d) {
-		
+		boid.draw(g2d);
 	}
 	
 	private void initializeClasses() {
-		
+		boid = new Boid(SIM_WIDTH/2, SIM_HEIGHT/2);
 	}
 	
 	private void startSimLoop() {
