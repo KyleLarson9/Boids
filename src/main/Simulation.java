@@ -1,6 +1,7 @@
 package main;
 
 import java.awt.Graphics2D;
+import java.util.ArrayList;
 
 import objects.Boid;
 
@@ -22,8 +23,8 @@ public class Simulation implements Runnable {
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
-	private Boid boid;
-	
+	private ArrayList<Boid> boids = new ArrayList<>();
+	private int totalBoids = 100;
 	public Simulation() {
 		initializeClasses();
 		
@@ -36,15 +37,27 @@ public class Simulation implements Runnable {
 	}
 	
 	public void update() {
-		boid.update();
+
+		for(Boid boid : boids) {
+			boid.update();
+			
+		}
 	}
 	
 	public void render(Graphics2D g2d) {
-		boid.draw(g2d);
+		
+		for(Boid boid : boids) {
+			boid.draw(g2d);
+		}
 	}
 	
 	private void initializeClasses() {
-		boid = new Boid(SIM_WIDTH/2, SIM_HEIGHT/2);
+		
+		for(int i = 0; i < totalBoids; i++) {
+			double randX = Math.random() * SIM_WIDTH;
+			double randY = Math.random() * SIM_HEIGHT;
+			boids.add(new Boid(this, randX, randY));
+		}
 	}
 	
 	private void startSimLoop() {

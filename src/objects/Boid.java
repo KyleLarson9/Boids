@@ -3,30 +3,92 @@ package objects;
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import main.Simulation;
 import vectorLogic.Vector;
 
 public class Boid {
 
 	private double x, y;
 	private Vector velocity;
+	private Simulation sim;
 	
-	public Boid(double x, double y) {
+	private boolean isTurning = false;
+	private double targetAngle;
+	
+	public Boid(Simulation sim, double x, double y) {
 		this.x = x;
 		this.y = y;
+		this.sim = sim;
 		this.velocity = setRandomVelocity();
 	}
 	
 	public void update() {
 		x += velocity.getX();
 		y += velocity.getY();
+		
+		checkCollisions();
+		
+		turn();
 	}
 	
+	private void turn() {
+	    // occasionally pick a new target angle
+	    if(!isTurning && Math.random() < 0.004) {
+	        double randOffset = Math.toRadians((Math.random() * 60) - 30);
+	        double currentAngle = velocity.getAngle();
+	        targetAngle = currentAngle + randOffset;
+	        isTurning = true;
+	    }
+
+	    if(isTurning) {
+		    graduallyTurn(targetAngle);
+	    }
+	}
+
+	private void graduallyTurn(double targetAngle) {
+	    double turnRate = Math.toRadians(0.3);
+	    double currentAngle = velocity.getAngle();
+
+	    double diff = targetAngle - currentAngle;
+	    diff = Math.atan2(Math.sin(diff), Math.cos(diff)); // normalize
+
+	    double speed = velocity.magnitude();
+
+	    if (Math.abs(diff) <= turnRate) {
+	        // reached the target
+	        velocity.setX(Math.cos(targetAngle) * speed);
+	        velocity.setY(Math.sin(targetAngle) * speed);
+	        isTurning = false; // clear it, so a new one can be chosen later
+	    } else {
+	        double newAngle = currentAngle + Math.signum(diff) * turnRate;
+	        velocity.setX(Math.cos(newAngle) * speed);
+	        velocity.setY(Math.sin(newAngle) * speed);
+	    }
+	}
+
+
+	
+	private void checkCollisions() {
+	    if(x < 0) {
+	        x = sim.getSimWidth();
+	    } else if(x > sim.getSimWidth()) {
+	        x = 0;
+	    }
+
+	    if(y < 0) {
+	        y = sim.getSimHeight();
+	    } else if(y > sim.getSimHeight()) {
+	        y = 0;
+	    }
+	}
+
 	private Vector setRandomVelocity() {
 		
 		double vX = Math.random() * 2 - 1;
 		double vY = Math.random() * 2 - 1;
 		
 		Vector randVelocity = new Vector(vX, vY);
+		randVelocity.normalize();
 		
 		return randVelocity;
 	}

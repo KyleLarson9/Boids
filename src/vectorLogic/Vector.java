@@ -23,6 +23,11 @@ public class Vector {
 			
 	}
 	
+	public void rotateVector(double angle) {
+		x = x*(Math.cos(angle)) + y*(-Math.sin(angle));
+		y = x*(Math.sin(angle)) + y*(Math.cos(angle));	
+	}
+	
 	public double getAngle() {
 		return Math.atan2(y, x); // angle from positive x axis
 	}
