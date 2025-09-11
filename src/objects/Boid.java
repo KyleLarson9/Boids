@@ -9,18 +9,26 @@ public class Boid {
 
 	private double x, y;
 	private Vector velocity;
-	private double xVel = 1;
-	private double yVel = 2;
 	
 	public Boid(double x, double y) {
 		this.x = x;
 		this.y = y;
-		this.velocity = new Vector(xVel, yVel);
+		this.velocity = setRandomVelocity();
 	}
 	
 	public void update() {
 		x += velocity.getX();
 		y += velocity.getY();
+	}
+	
+	private Vector setRandomVelocity() {
+		
+		double vX = Math.random() * 2 - 1;
+		double vY = Math.random() * 2 - 1;
+		
+		Vector randVelocity = new Vector(vX, vY);
+		
+		return randVelocity;
 	}
 	
 	public void draw(Graphics2D g2d) {
