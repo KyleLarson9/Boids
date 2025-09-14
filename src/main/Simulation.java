@@ -1,9 +1,11 @@
 package main;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import objects.Boid;
+import vectorLogic.Vector;
 
 public class Simulation implements Runnable {
 
@@ -17,14 +19,14 @@ public class Simulation implements Runnable {
 	
 	private final static int TILES_DEFAULT_SIZE = 32;
 	private final static float SCALE = 1.5f;
-	private final static int TILES_IN_WIDTH = 16;
+	private final static int TILES_IN_WIDTH = 26;
 	private final static int TILES_IN_HEIGHT = 16;
 	private final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
 	private ArrayList<Boid> boids = new ArrayList<>();
-	private int totalBoids = 100;
+	private int totalBoids = 1;
 	public Simulation() {
 		initializeClasses();
 		
@@ -36,16 +38,58 @@ public class Simulation implements Runnable {
 		startSimLoop();
 	}
 	
-	public void update() {
+	private void averageVelocity() {
+		
+		double averageSpeed = 0;
+		
+		for(Boid boid : boids) {
+			Vector velocity = boid.getVelocity();
+			double speed = Math.sqrt(velocity.getX() * velocity.getX() + velocity.getY() * velocity.getY());
+		
+			averageSpeed += speed;
+		}
+		
+		averageSpeed /= boids.size();
+		
+		System.out.println(averageSpeed);
+	}
+	
+	private void checkBoidsInRange(Graphics2D g2d) {
+		
+		for(int i = 0; i < boids.size(); i++) {
+			Boid boid1 = boids.get(i);
 
+			for(int j = i + 1; j < boids.size(); j++) {
+				
+				if(i == j)
+					continue; 
+				
+				Boid boid2 = boids.get(j);
+				
+				if(boid1.getVision().inVisionRange(boid2.getX(), boid2.getY())) {
+					g2d.setColor(Color.red);
+					g2d.drawLine((int) boid1.getX(), (int) boid1.getY(), (int) boid2.getX(), (int) boid2.getY());
+				}
+			}
+		}
+		
+		g2d.setColor(Color.black);
+
+		
+	}
+	
+	public void update() {
 		for(Boid boid : boids) {
 			boid.update();
-			
 		}
+		
+//		averageVelocity();
 	}
 	
 	public void render(Graphics2D g2d) {
 		
+		checkBoidsInRange(g2d);
+
 		for(Boid boid : boids) {
 			boid.draw(g2d);
 		}
@@ -114,6 +158,10 @@ public class Simulation implements Runnable {
 	
 	public int getSimWidth() {
 		return SIM_WIDTH;
+	}
+	
+	public ArrayList<Boid> getBoids() {
+		return boids;
 	}
 	
 }

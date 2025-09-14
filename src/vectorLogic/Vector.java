@@ -23,6 +23,11 @@ public class Vector {
 			
 	}
 	
+	public void add(double x2, double y2) {
+		x += x2;
+		y += y2;
+	}
+	
 	public void rotateVector(double angle) {
 		x = x*(Math.cos(angle)) + y*(-Math.sin(angle));
 		y = x*(Math.sin(angle)) + y*(Math.cos(angle));	

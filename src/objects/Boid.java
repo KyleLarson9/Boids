@@ -8,18 +8,29 @@ import vectorLogic.Vector;
 
 public class Boid {
 
-	private double x, y;
-	private Vector velocity;
 	private Simulation sim;
+
+	private Vector velocity;
+	private Vision vision;
 	
+	private Color color;
+	
+	private double x, y;
+	private double width = 6, height = 12;
+		
 	private boolean isTurning = false;
 	private double targetAngle;
+	
+	private double visionRadius = 60;
+	private double visionAngle = 120; // degrees
 	
 	public Boid(Simulation sim, double x, double y) {
 		this.x = x;
 		this.y = y;
 		this.sim = sim;
 		this.velocity = setRandomVelocity();
+		this.vision = new Vision(this, visionRadius, visionAngle);
+		
 	}
 	
 	public void update() {
@@ -54,7 +65,7 @@ public class Boid {
 
 	    double speed = velocity.magnitude();
 
-	    if (Math.abs(diff) <= turnRate) {
+	    if(Math.abs(diff) <= turnRate) {
 	        // reached the target
 	        velocity.setX(Math.cos(targetAngle) * speed);
 	        velocity.setY(Math.sin(targetAngle) * speed);
@@ -65,8 +76,6 @@ public class Boid {
 	        velocity.setY(Math.sin(newAngle) * speed);
 	    }
 	}
-
-
 	
 	private void checkCollisions() {
 	    if(x < 0) {
@@ -88,16 +97,16 @@ public class Boid {
 		double vY = Math.random() * 2 - 1;
 		
 		Vector randVelocity = new Vector(vX, vY);
-		randVelocity.normalize();
+//		randVelocity.normalize();
 		
 		return randVelocity;
 	}
 	
 	public void draw(Graphics2D g2d) {
+		
+		vision.draw(g2d);
+		
 	    g2d.setColor(Color.black);
-
-	    int width = 10;
-	    int height = 20;
 	    
 	    int[] xVerticies = {(int) x, (int) (x + width/2), (int) (x - width/2)};
 	    int[] yVerticies = {(int) (y-height/2), (int) (y + height/2), (int) (y + height/2)};
@@ -125,4 +134,54 @@ public class Boid {
 	    
 	}
 
+	public void setColor(Color color) {
+		this.color = color;
+	}
+	
+	public double getX() {
+		return x;
+	}
+
+	public void setX(double x) {
+		this.x = x;
+	}
+
+	public double getY() {
+		return y;
+	}
+
+	public void setY(double y) {
+		this.y = y;
+	}
+
+	public double getWidth() {
+		return width;
+	}
+
+	public void setWidth(double width) {
+		this.width = width;
+	}
+
+	public double getHeight() {
+		return height;
+	}
+
+	public void setHeight(double height) {
+		this.height = height;
+	}
+
+	public Vector getVelocity() {
+		return velocity;
+	}
+
+	public void setVelocity(Vector velocity) {
+		this.velocity = velocity;
+	}
+	
+	public Vision getVision() {
+		return vision;
+	}
+
+	
+	
 }
