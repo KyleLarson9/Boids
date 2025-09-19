@@ -13,16 +13,20 @@ public class Boid {
 	private Vector velocity;
 	private Vision vision;
 	
-	private Color color;
-	
 	private double x, y;
 	private double width = 6, height = 12;
 		
 	private boolean isTurning = false;
 	private double targetAngle;
 	
-	private double visionRadius = 60;
+	private double visionRadius = 100;
 	private double visionAngle = 120; // degrees
+	
+	private double minSpeed = .5;
+	private double maxSpeed = 1;
+	
+	private double roamingTurnRate = Math.toRadians(0.3);
+	private double targetedTurnRate = Math.toRadians(0.8);
 	
 	public Boid(Simulation sim, double x, double y) {
 		this.x = x;
@@ -34,6 +38,9 @@ public class Boid {
 	}
 	
 	public void update() {
+	
+		flock();
+		
 		x += velocity.getX();
 		y += velocity.getY();
 		
@@ -42,22 +49,73 @@ public class Boid {
 		turn();
 	}
 	
-	private void turn() {
-	    // occasionally pick a new target angle
-	    if(!isTurning && Math.random() < 0.004) {
-	        double randOffset = Math.toRadians((Math.random() * 60) - 30);
-	        double currentAngle = velocity.getAngle();
-	        targetAngle = currentAngle + randOffset;
-	        isTurning = true;
-	    }
-
-	    if(isTurning) {
-		    graduallyTurn(targetAngle);
-	    }
+	public void flock() {
+		
+		Vector averagePosition = new Vector(0, 0);
+		Vector averageVelocity = new Vector(0, 0);
+		
+		int boidsInVision = 0;
+		double averageSpeed = 0;
+		
+		for(Boid boid : sim.getBoids()) {
+			if(boid == this);
+			
+			if(this.getVision().inVisionRange(boid.getX(), boid.getY())) {
+				boidsInVision++;
+				
+				// for alignment
+				averageVelocity.add(boid.getVelocity());
+				averageSpeed += boid.getVelocity().magnitude();
+				
+				// for cohesion
+				averagePosition.add(new Vector(boid.getX(), boid.getY()));
+			}
+		}
+		
+		if(boidsInVision > 0) {
+			
+			// Alignment
+			averageVelocity.divide(boidsInVision);
+			averageSpeed /= boidsInVision;
+			
+			Vector desiredVelocity = averageVelocity.normalized();
+			desiredVelocity.scale(averageSpeed);
+			double alignAngle = desiredVelocity.getAngle();
+			
+			// Cohesion
+			averagePosition.divide(boidsInVision);
+			
+			double dx = averagePosition.getX() - this.getX();
+			double dy = averagePosition.getY() - this.getY();
+			
+			Vector toCenter = new Vector(dx, dy).normalized();
+			
+			// scale by current speed
+			double speed = velocity.magnitude();
+			toCenter.scale(speed);
+			
+			double cohesionAngle = Math.atan2(dy, dx);
+			
+			// Blend cohesion and alignment angles together
+			double alignWeight = 0.9; // Boids are more concerned aligning with other boids than going to the center
+			double cohesionWeight = 1 - alignWeight;
+			
+			double targetAngle = blendAngles(alignAngle, alignWeight, cohesionAngle, cohesionWeight);
+			
+			graduallyTurn(targetAngle, targetedTurnRate);
+		}
+		
 	}
 
-	private void graduallyTurn(double targetAngle) {
-	    double turnRate = Math.toRadians(0.3);
+	public double blendAngles(double alignAngle, double alignWeight, double cohesionAngle, double cohesionWeight) {
+		
+		double dx = Math.cos(alignAngle)*alignWeight + Math.cos(cohesionAngle)*cohesionWeight;
+		double dy = Math.sin(alignAngle)*alignWeight + Math.sin(cohesionAngle)*cohesionWeight;
+		return Math.atan2(dy, dx);
+		
+	}
+	
+	private void graduallyTurn(double targetAngle, double turnRate) {
 	    double currentAngle = velocity.getAngle();
 
 	    double diff = targetAngle - currentAngle;
@@ -74,6 +132,20 @@ public class Boid {
 	        double newAngle = currentAngle + Math.signum(diff) * turnRate;
 	        velocity.setX(Math.cos(newAngle) * speed);
 	        velocity.setY(Math.sin(newAngle) * speed);
+	    }
+	}
+	
+	private void turn() {
+	    // occasionally pick a new target angle
+	    if(!isTurning && Math.random() < 0.004) {
+	        double randOffset = Math.toRadians((Math.random() * 60) - 30);
+	        double currentAngle = velocity.getAngle();
+	        targetAngle = currentAngle + randOffset;
+	        isTurning = true;
+	    }
+
+	    if(isTurning) {
+		    graduallyTurn(targetAngle, roamingTurnRate);
 	    }
 	}
 	
@@ -97,14 +169,16 @@ public class Boid {
 		double vY = Math.random() * 2 - 1;
 		
 		Vector randVelocity = new Vector(vX, vY);
-//		randVelocity.normalize();
+		randVelocity.normalized(); // if you want speeds to be the same for all boids
 		
-		return randVelocity;
+		double speed = minSpeed + Math.random() * (maxSpeed - minSpeed);
+		
+		return randVelocity.scaled(speed);
 	}
 	
 	public void draw(Graphics2D g2d) {
 		
-		vision.draw(g2d);
+//		vision.draw(g2d);
 		
 	    g2d.setColor(Color.black);
 	    
@@ -132,10 +206,6 @@ public class Boid {
 	    
 	    g2d.fillPolygon(xVerticiesRotated, yVerticiesRotated, 3);
 	    
-	}
-
-	public void setColor(Color color) {
-		this.color = color;
 	}
 	
 	public double getX() {
