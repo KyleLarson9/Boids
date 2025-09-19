@@ -26,7 +26,7 @@ public class Boid {
 	private double maxSpeed = 1;
 	
 	private double roamingTurnRate = Math.toRadians(0.3);
-	private double targetedTurnRate = Math.toRadians(0.8);
+	private double targetedTurnRate = Math.toRadians(0.6);
 	
 	public Boid(Simulation sim, double x, double y) {
 		this.x = x;
@@ -103,6 +103,11 @@ public class Boid {
 			double targetAngle = blendAngles(alignAngle, alignWeight, cohesionAngle, cohesionWeight);
 			
 			graduallyTurn(targetAngle, targetedTurnRate);
+			
+			double currentSpeed = velocity.magnitude();
+	        double targetSpeed = averageSpeed * alignWeight + currentSpeed * cohesionWeight;
+	        velocity.normalize();
+	        velocity.scale(targetSpeed);
 		}
 		
 	}
