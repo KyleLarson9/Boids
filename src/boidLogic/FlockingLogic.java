@@ -2,6 +2,7 @@ package boidLogic;
 
 import java.util.ArrayList;
 
+import objects.Boid;
 import vectorLogic.Vector;
 
 public class FlockingLogic {

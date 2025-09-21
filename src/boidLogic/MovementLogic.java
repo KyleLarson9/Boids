@@ -1,5 +1,6 @@
 package boidLogic;
 
+import objects.Boid;
 import vectorLogic.Vector;
 
 public class MovementLogic {

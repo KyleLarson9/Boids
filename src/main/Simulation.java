@@ -3,7 +3,7 @@ package main;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
-import boidLogic.Boid;
+import objects.Boid;
 
 public class Simulation implements Runnable {
 

@@ -1,8 +1,12 @@
-package boidLogic;
+package objects;
 
 import java.awt.Color;
 import java.awt.Graphics2D;
 
+import boidLogic.CollisionLogic;
+import boidLogic.FlockingLogic;
+import boidLogic.MovementLogic;
+import boidLogic.Vision;
 import main.Simulation;
 import vectorLogic.Vector;
 

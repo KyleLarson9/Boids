@@ -4,6 +4,8 @@ import java.awt.Color;
 import java.awt.Graphics2D;
 import java.awt.geom.Arc2D;
 
+import objects.Boid;
+
 public class Vision {
 
 	private double visionRadius;
