@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import objects.Boid;
+import objects.Wall;
 
 public class Simulation implements Runnable {
 
@@ -16,23 +17,26 @@ public class Simulation implements Runnable {
 	private final int FPS = 120;
 	private final int UPS = 200;
 	
-	private final static int TILES_DEFAULT_SIZE = 32;
+	private final static int TILES_DEFAULT_SIZE = 16;
 	private final static float SCALE = 1.5f;
-	private final static int TILES_IN_WIDTH = 30;
-	private final static int TILES_IN_HEIGHT = 18;
+	private final static int TILES_IN_WIDTH = 60;
+	private final static int TILES_IN_HEIGHT = 36;
 	private final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
+	private ArrayList<Wall> walls = new ArrayList<>();
+	private final int WALL_SIZE = TILES_SIZE;
+	
 	private ArrayList<Boid> boids = new ArrayList<>();
 	private Boid testBoid; // boid for testing visualizations including vision cone, rays, ect
 	
-	private int totalBoids = 400;
+	private int totalBoids = 3;
 	
 	public Simulation() {
 		initializeClasses();
 			
-		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, false, true);
+		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, false, false);
 		
 		panel = new SimPanel(this);
 		frame = new SimFrame(panel);
@@ -62,31 +66,11 @@ public class Simulation implements Runnable {
 			boid.draw(g2d);
 		}
 		
-//		drawSightLines(g2d);
-		
-	}
-	
-	public void drawSightLines(Graphics2D g2d) {
-		for(int i = 0; i < boids.size(); i++) {
-			
-			Boid boid1 = boids.get(i);
-			
-			for(int j = i + 1; j < boids.size(); j++) {
-				
-				if(i == j) 
-					continue;
-				
-				Boid boid2 = boids.get(j);
-				
-				if(boid1.getVision().inVisionRange(boid2.getX(), boid2.getY())) {
-					g2d.drawLine((int) boid1.getX(), (int) boid1.getY(), (int) boid2.getX(), (int) boid2.getY());
-				}
-				
-			}
-			
+		for(Wall wall : walls) {
+			wall.draw(g2d);
 		}
 	}
-	
+
 	private void initializeClasses() {
 		
 		for(int i = 0; i < totalBoids; i++) {
@@ -94,6 +78,32 @@ public class Simulation implements Runnable {
 			double randY = Math.random() * SIM_HEIGHT;
 			boids.add(new Boid(this, randX, randY, false, false));
 		}
+		
+		initializeWalls();
+	}
+	
+	private void initializeWalls() {
+		
+		// Top border
+		for(int i = 0 + WALL_SIZE; i < SIM_WIDTH - WALL_SIZE; i += WALL_SIZE) {
+			walls.add(new Wall(i, 0 + WALL_SIZE, WALL_SIZE, WALL_SIZE));
+		}
+		
+		// Bottom border
+		for(int i = 0 + WALL_SIZE; i < SIM_WIDTH - WALL_SIZE; i += WALL_SIZE) {
+			walls.add(new Wall(i, SIM_HEIGHT - WALL_SIZE - WALL_SIZE, WALL_SIZE, WALL_SIZE));
+		}
+		
+		// Left border
+		for(int i = 0 + (WALL_SIZE*2); i < SIM_HEIGHT - (WALL_SIZE*2); i += WALL_SIZE) {
+			walls.add(new Wall(0 + WALL_SIZE, i, WALL_SIZE, WALL_SIZE));
+		}
+		
+		// Right border
+		for(int i = + (WALL_SIZE*2); i < SIM_HEIGHT - (WALL_SIZE*2); i += WALL_SIZE) {
+			walls.add(new Wall(SIM_WIDTH - WALL_SIZE - WALL_SIZE, i, WALL_SIZE, WALL_SIZE));
+		}
+				
 	}
 	
 	private void startSimLoop() {
@@ -154,6 +164,10 @@ public class Simulation implements Runnable {
 	
 	public ArrayList<Boid> getBoids() {
 		return boids;
+	}
+	
+	public int getWallSize() {
+		return WALL_SIZE;
 	}
 	
 }

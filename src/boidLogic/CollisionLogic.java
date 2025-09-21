@@ -17,17 +17,18 @@ public class CollisionLogic {
 		double y = boid.getY();
 		double width = boid.getSim().getSimWidth();
 		double height = boid.getSim().getSimHeight();
+		int wallSize = boid.getSim().getWallSize();
 		
-	    if(x < 0) {
-	        boid.setX(width);;
-	    } else if(x > width) {
-	        boid.setX(0);
+	    if(x < 0 + wallSize*2) {
+	        boid.setX(width - (wallSize*2));
+	    } else if(x > width - (wallSize*2)) {
+	        boid.setX(0 + wallSize*2);
 	    }
 
-	    if(y < 0) {
-	        boid.setY(height);
-	    } else if(y > height) {
-	        boid.setY(0);
+	    if(y < 0 + wallSize*2) {
+	        boid.setY(height - (wallSize*2));
+	    } else if(y > height - (wallSize*2)) {
+	        boid.setY(0 + wallSize*2);
 	    }
 	}
 	
