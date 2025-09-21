@@ -1,5 +1,6 @@
 package main;
 
+import java.awt.Color;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
@@ -24,10 +25,14 @@ public class Simulation implements Runnable {
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
 	private ArrayList<Boid> boids = new ArrayList<>();
+	private Boid testBoid; // boid for testing visualizations including vision cone, rays, ect
+	
 	private int totalBoids = 400;
 	
 	public Simulation() {
 		initializeClasses();
+			
+		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, false, true);
 		
 		panel = new SimPanel(this);
 		frame = new SimFrame(panel);
@@ -38,18 +43,25 @@ public class Simulation implements Runnable {
 	}
 	
 	public void update() {
-				
+			
+		testBoid.update();
+
 		for(Boid boid : boids) {
 			boid.update();
 		}
-		
+				
 	}
 	
 	public void render(Graphics2D g2d) {
 
+		g2d.setColor(Color.red);
+		testBoid.draw(g2d);
+		
 		for(Boid boid : boids) {
+			g2d.setColor(Color.black);
 			boid.draw(g2d);
 		}
+		
 //		drawSightLines(g2d);
 		
 	}
@@ -80,7 +92,7 @@ public class Simulation implements Runnable {
 		for(int i = 0; i < totalBoids; i++) {
 			double randX = Math.random() * SIM_WIDTH;
 			double randY = Math.random() * SIM_HEIGHT;
-			boids.add(new Boid(this, randX, randY));
+			boids.add(new Boid(this, randX, randY, false, false));
 		}
 	}
 	

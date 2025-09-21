@@ -36,7 +36,10 @@ public class Boid {
 	private double roamingTurnRate = Math.toRadians(0.3);
 	private double targetedTurnRate = Math.toRadians(0.6);
 	
-	public Boid(Simulation sim, double x, double y) {
+	private boolean renderVisionCone;
+	private boolean renderRays;
+	
+	public Boid(Simulation sim, double x, double y, boolean renderVisionCone, boolean renderRays) {
 		this.x = x;
 		this.y = y;
 		this.sim = sim;
@@ -48,6 +51,8 @@ public class Boid {
 
 		this.velocity = movementLogic.setRandomVelocity();
 		
+		this.renderVisionCone = renderVisionCone;
+		this.renderRays = renderRays;
 	}
 	
 	public void update() {
@@ -66,10 +71,6 @@ public class Boid {
 
 
 	public void draw(Graphics2D g2d) {
-		
-//		vision.draw(g2d);
-		
-	    g2d.setColor(Color.black);
 	    
 	    int[] xVerticies = {(int) x, (int) (x + width/2), (int) (x - width/2)};
 	    int[] yVerticies = {(int) (y-height/2), (int) (y + height/2), (int) (y + height/2)};
@@ -95,6 +96,28 @@ public class Boid {
 	    
 	    g2d.fillPolygon(xVerticiesRotated, yVerticiesRotated, 3);
 	   	    
+	    if(renderRays)
+	    	drawRays(g2d);
+	    
+	    if(renderVisionCone) 
+			vision.draw(g2d);
+	    
+	}
+	
+	private void drawRays(Graphics2D g2d) {
+		g2d.setColor(Color.blue);
+		
+		double startAngle = velocity.getAngle() - Math.toRadians(visionAngle)/2;
+		double endAngle = velocity.getAngle() + Math.toRadians(visionAngle)/2;
+		int totalRays = 20;
+		double deltaAngle = Math.toRadians(visionAngle/totalRays);
+		
+		for(double angle = startAngle; angle <= endAngle; angle+=deltaAngle) {
+			double rayX = x + visionRadius * Math.cos(angle);
+			double rayY = y + visionRadius * Math.sin(angle);
+			g2d.drawLine((int) x, (int) y, (int) rayX, (int) rayY);
+		}
+		
 	}
 
 	public void turnTowardsAngle(double targetAngle, double turnRate) {
