@@ -1,4 +1,4 @@
-package objects;
+package boidLogic;
 
 import java.awt.Color;
 import java.awt.Graphics2D;

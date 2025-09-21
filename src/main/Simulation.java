@@ -3,7 +3,7 @@ package main;
 import java.awt.Graphics2D;
 import java.util.ArrayList;
 
-import objects.Boid;
+import boidLogic.Boid;
 
 public class Simulation implements Runnable {
 
@@ -17,14 +17,15 @@ public class Simulation implements Runnable {
 	
 	private final static int TILES_DEFAULT_SIZE = 32;
 	private final static float SCALE = 1.5f;
-	private final static int TILES_IN_WIDTH = 26;
-	private final static int TILES_IN_HEIGHT = 16;
+	private final static int TILES_IN_WIDTH = 30;
+	private final static int TILES_IN_HEIGHT = 18;
 	private final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
 	
 	private ArrayList<Boid> boids = new ArrayList<>();
-	private int totalBoids = 500;
+	private int totalBoids = 400;
+	
 	public Simulation() {
 		initializeClasses();
 		
@@ -123,7 +124,7 @@ public class Simulation implements Runnable {
 
 			if(System.currentTimeMillis() - lastCheck >= 1000) {
 				lastCheck = System.currentTimeMillis();
-			    System.out.println("FPS: " + frames + " | UPS: " + updates);
+//			    System.out.println("FPS: " + frames + " | UPS: " + updates);
 				frames = 0;
 				updates = 0;
 
