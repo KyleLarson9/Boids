@@ -113,8 +113,8 @@ public class Boid {
 		double deltaAngle = Math.toRadians(visionAngle/totalRays);
 		
 		for(double angle = startAngle; angle <= endAngle; angle+=deltaAngle) {
-			double rayX = x + visionRadius * Math.cos(angle);
-			double rayY = y + visionRadius * Math.sin(angle);
+			double rayX = x + visionRadius * Math.cos(angle) * .5;
+			double rayY = y + visionRadius * Math.sin(angle) * .5;
 			g2d.drawLine((int) x, (int) y, (int) rayX, (int) rayY);
 		}
 		

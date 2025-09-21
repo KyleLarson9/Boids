@@ -31,12 +31,12 @@ public class Simulation implements Runnable {
 	private ArrayList<Boid> boids = new ArrayList<>();
 	private Boid testBoid; // boid for testing visualizations including vision cone, rays, ect
 	
-	private int totalBoids = 3;
+	private int totalBoids = 40;
 	
 	public Simulation() {
 		initializeClasses();
 			
-		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, false, false);
+		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, true, true);
 		
 		panel = new SimPanel(this);
 		frame = new SimFrame(panel);

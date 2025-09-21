@@ -11,6 +11,25 @@ public class CollisionLogic {
 		this.boid = boid;
 	}
 	
+	public void avoidWallsUsingVision() {
+		   
+		Vector velocity = boid.getVelocity();
+		double visionAngle = boid.getVisionAngle();
+		double visionRadius = boid.getVisionRadius();
+		
+		double startAngle = velocity.getAngle() - Math.toRadians(visionAngle)/2;
+		double endAngle = velocity.getAngle() + Math.toRadians(visionAngle)/2;
+		int totalPoints = 20;
+		double deltaAngle =  Math.toRadians(visionAngle/totalPoints);
+		
+		for(double angle = startAngle; angle <= endAngle; angle+=deltaAngle) {
+			// calculate ray endpoint
+			double rayX = boid.getX() + visionRadius * Math.cos(angle);
+			double rayY = boid.getY() + visionRadius * Math.sin(angle);
+			
+		}		
+	}
+	
 	public void checkCollisions() {
 		
 		double x = boid.getX();
@@ -30,25 +49,6 @@ public class CollisionLogic {
 	    } else if(y > height - (wallSize*2)) {
 	        boid.setY(0 + wallSize*2);
 	    }
-	}
-	
-	public void avoidWallsUsingVision() {
-		   
-		Vector velocity = boid.getVelocity();
-		double visionAngle = boid.getVisionAngle();
-		double visionRadius = boid.getVisionRadius();
-		
-		double startAngle = velocity.getAngle() - Math.toRadians(visionAngle)/2;
-		double endAngle = velocity.getAngle() + Math.toRadians(visionAngle)/2;
-		int totalPoints = 20;
-		double deltaAngle =  Math.toRadians(visionAngle/totalPoints);
-		
-		for(double angle = startAngle; angle <= endAngle; angle+=deltaAngle) {
-			// calculate ray endpoint
-			double rayX = boid.getX() + visionRadius * Math.cos(angle);
-			double rayY = boid.getY() + visionRadius * Math.sin(angle);
-			
-		}		
 	}
 	
 }
