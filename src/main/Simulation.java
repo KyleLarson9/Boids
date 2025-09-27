@@ -5,6 +5,7 @@ import java.awt.Graphics2D;
 import java.util.ArrayList;
 
 import objects.Boid;
+import objects.Obstacle;
 import objects.Wall;
 
 public class Simulation implements Runnable {
@@ -24,19 +25,21 @@ public class Simulation implements Runnable {
 	private final static int TILES_SIZE = (int) (TILES_DEFAULT_SIZE * SCALE);
 	private final static int SIM_WIDTH = TILES_SIZE * TILES_IN_WIDTH;
 	private final static int SIM_HEIGHT = TILES_SIZE * TILES_IN_HEIGHT;
+
+	private double boundaryWallOffset = 40 * SCALE;
 	
 	private ArrayList<Wall> walls = new ArrayList<>();
-	private final int WALL_SIZE = TILES_SIZE;
+	private ArrayList<Obstacle> obstacles = new ArrayList<>();
 	
 	private ArrayList<Boid> boids = new ArrayList<>();
 	private Boid testBoid; // boid for testing visualizations including vision cone, rays, ect
 	
-	private int totalBoids = 40;
+	private int totalBoids = 400;
 	
 	public Simulation() {
 		initializeClasses();
 			
-		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, true, true);
+		testBoid = new Boid(this, SIM_WIDTH/2, SIM_HEIGHT/2, false, true);
 		
 		panel = new SimPanel(this);
 		frame = new SimFrame(panel);
@@ -69,40 +72,37 @@ public class Simulation implements Runnable {
 		for(Wall wall : walls) {
 			wall.draw(g2d);
 		}
+		
+		for(Obstacle obstacle : obstacles) {
+			obstacle.draw(g2d);
+		}
 	}
 
 	private void initializeClasses() {
 		
-		for(int i = 0; i < totalBoids; i++) {
-			double randX = Math.random() * SIM_WIDTH;
-			double randY = Math.random() * SIM_HEIGHT;
-			boids.add(new Boid(this, randX, randY, false, false));
-		}
+//		for(int i = 0; i < totalBoids; i++) {
+//			double randX = Math.random() * SIM_WIDTH;
+//			double randY = Math.random() * SIM_HEIGHT;
+//			boids.add(new Boid(this, randX, randY, false, false));
+//		}
 		
 		initializeWalls();
 	}
 	
 	private void initializeWalls() {
 		
-		// Top border
-		for(int i = 0 + WALL_SIZE; i < SIM_WIDTH - WALL_SIZE; i += WALL_SIZE) {
-			walls.add(new Wall(i, 0 + WALL_SIZE, WALL_SIZE, WALL_SIZE));
-		}
-		
-		// Bottom border
-		for(int i = 0 + WALL_SIZE; i < SIM_WIDTH - WALL_SIZE; i += WALL_SIZE) {
-			walls.add(new Wall(i, SIM_HEIGHT - WALL_SIZE - WALL_SIZE, WALL_SIZE, WALL_SIZE));
-		}
-		
-		// Left border
-		for(int i = 0 + (WALL_SIZE*2); i < SIM_HEIGHT - (WALL_SIZE*2); i += WALL_SIZE) {
-			walls.add(new Wall(0 + WALL_SIZE, i, WALL_SIZE, WALL_SIZE));
-		}
-		
-		// Right border
-		for(int i = + (WALL_SIZE*2); i < SIM_HEIGHT - (WALL_SIZE*2); i += WALL_SIZE) {
-			walls.add(new Wall(SIM_WIDTH - WALL_SIZE - WALL_SIZE, i, WALL_SIZE, WALL_SIZE));
-		}
+		// top wall		
+		walls.add(new Wall(0 + boundaryWallOffset, 0 + boundaryWallOffset, SIM_WIDTH - boundaryWallOffset, 0 + boundaryWallOffset));
+				
+		// bottom wall
+		walls.add(new Wall(0 + boundaryWallOffset, SIM_HEIGHT - boundaryWallOffset, SIM_WIDTH - boundaryWallOffset, SIM_HEIGHT - boundaryWallOffset));
+				
+		// left wall
+		walls.add(new Wall(0 + boundaryWallOffset, 0 + boundaryWallOffset, 0 + boundaryWallOffset, SIM_HEIGHT - boundaryWallOffset));
+				
+		// right wall
+		walls.add(new Wall(SIM_WIDTH - boundaryWallOffset, 0 + boundaryWallOffset, SIM_WIDTH - boundaryWallOffset, SIM_HEIGHT - boundaryWallOffset));
+
 				
 	}
 	
@@ -164,10 +164,6 @@ public class Simulation implements Runnable {
 	
 	public ArrayList<Boid> getBoids() {
 		return boids;
-	}
-	
-	public int getWallSize() {
-		return WALL_SIZE;
 	}
 	
 }
