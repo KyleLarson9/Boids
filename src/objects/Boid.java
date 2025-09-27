@@ -6,6 +6,7 @@ import java.awt.Graphics2D;
 import boidLogic.CollisionLogic;
 import boidLogic.FlockingLogic;
 import boidLogic.MovementLogic;
+import boidLogic.Ray;
 import boidLogic.Vision;
 import main.Simulation;
 import vectorLogic.Vector;
@@ -20,6 +21,8 @@ public class Boid {
 	
 	private Vector velocity;
 	private Vision vision;
+	
+	private Ray[] rays; // used for Ray casting collision detection
 	
 	private double x, y;
 	private double width = 6, height = 12;
@@ -36,6 +39,8 @@ public class Boid {
 	private double roamingTurnRate = Math.toRadians(0.3);
 	private double targetedTurnRate = Math.toRadians(0.6);
 	
+	private int totalRays = 20;
+	
 	private boolean renderVisionCone;
 	private boolean renderRays;
 	
@@ -44,6 +49,7 @@ public class Boid {
 		this.y = y;
 		this.sim = sim;
 		this.vision = new Vision(this, visionRadius, visionAngle);
+		this.rays = new Ray[totalRays];
 		
 		movementLogic = new MovementLogic(this);
 		collisionLogic = new CollisionLogic(this);
@@ -53,6 +59,7 @@ public class Boid {
 		
 		this.renderVisionCone = renderVisionCone;
 		this.renderRays = renderRays;
+
 	}
 	
 	public void update() {
@@ -60,13 +67,15 @@ public class Boid {
 		flockingLogic.alignment();
 		flockingLogic.cohesion();
 		
-//		collisionLogic.avoidWallsUsingVision();
 		movementLogic.turn();          // adjust velocity first
 		movementLogic.clampSpeed();     // ensure speed is within limits
+	
 		x += velocity.getX();
 		y += velocity.getY();
+		
 		collisionLogic.checkCollisions();
 
+		calculateRays();
 	}
 
 
@@ -76,8 +85,7 @@ public class Boid {
 	    int[] yVerticies = {(int) (y-height/2), (int) (y + height/2), (int) (y + height/2)};
 	    
 	    int[] xVerticiesRotated = new int[3];
-	    int[] yVerticiesRotated = new int[3];
-	    
+	    int[] yVerticiesRotated = new int[3];    
 	    
 	    // polygon rotated by velocity vector direction
 	    double angle = velocity.getAngle() + Math.PI/2; // so 0 rads corresponds to the triangle pointing up
@@ -96,26 +104,31 @@ public class Boid {
 	    
 	    g2d.fillPolygon(xVerticiesRotated, yVerticiesRotated, 3);
 	   	    
-	    if(renderRays)
-	    	drawRays(g2d);
+	    if(renderRays) {
+	    	for(Ray ray : rays) {
+	    		ray.draw(g2d);
+	    	}
+	    }
 	    
 	    if(renderVisionCone) 
 			vision.draw(g2d);
 	    
 	}
 	
-	private void drawRays(Graphics2D g2d) {
-		g2d.setColor(Color.blue);
+	private void calculateRays() {
 		
-		double startAngle = velocity.getAngle() - Math.toRadians(visionAngle)/2;
-		double endAngle = velocity.getAngle() + Math.toRadians(visionAngle)/2;
-		int totalRays = 20;
-		double deltaAngle = Math.toRadians(visionAngle/totalRays);
+		double startAngle = velocity.getAngle() - Math.toRadians(visionAngle/2);
+		double endAngle = velocity.getAngle() + Math.toRadians(visionAngle/2);
+		double deltaAngle = Math.toRadians(visionAngle/ (totalRays - 1));
 		
-		for(double angle = startAngle; angle <= endAngle; angle+=deltaAngle) {
-			double rayX = x + visionRadius * Math.cos(angle) * .5;
-			double rayY = y + visionRadius * Math.sin(angle) * .5;
-			g2d.drawLine((int) x, (int) y, (int) rayX, (int) rayY);
+		int index = 0;
+		for(double angle = startAngle; index < totalRays; angle+=deltaAngle) {
+					
+			double endX = x + Math.cos(angle)*visionRadius;
+			double endY = y + Math.sin(angle)*visionRadius;
+			
+			rays[index] = new Ray(x, y, endX, endY);
+			index++;
 		}
 		
 	}
